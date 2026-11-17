@@ -10,10 +10,7 @@ Shared multi-tenancy for Go services: one shared app, one SQL Server database pe
 
 ## Installing
 
-The repo is private, so tell Go not to use the public proxy/checksum DB for it:
-
 ```sh
-go env -w GOPRIVATE=github.com/spursolutions/*
 go get github.com/spursolutions/hermes@latest
 ```
 
@@ -58,3 +55,16 @@ from repositories still render as 400s.
 | `TENANT_POOL_CONN_MAX_LIFETIME` | `5m` | Recycle individual connections after this long |
 | `TENANT_POOL_IDLE_TTL` | `30m` | Close a tenant's whole pool after this much inactivity |
 | `TENANT_POOL_SWEEP_INTERVAL` | `5m` | How often idle pools are checked |
+
+## Security
+
+`ginmw.Tenant` trusts the `X-Authenticated-Userid` header (`tenant_id|user_id`) as-is; it does
+no authentication of its own. Services using it **must only be reachable through a gateway**
+that authenticates the caller, strips any client-supplied `X-Authenticated-Userid`, and sets
+it itself. If a service can be reached directly (bypassing the gateway), any caller can claim
+to be any tenant.
+
+## License
+
+Proprietary. Source is published for reference only; no license is granted to use, copy,
+modify, or distribute it. See [LICENSE](LICENSE).
